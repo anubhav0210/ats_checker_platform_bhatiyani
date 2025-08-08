@@ -26,6 +26,7 @@ const ResumeUpload = ({ setScoreData }) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'application/pdf': [] } });
 
 const handleSubmit = async () => {
+  
   if (!selectedFile || !jobDescription) return alert('Please provide both resume and job description');
 
   const formData = new FormData();
@@ -34,9 +35,10 @@ const handleSubmit = async () => {
 
   try {
     setLoading(true);
-    const response = await axios.post('http://localhost:8000/score', formData);
+    const response = await axios.get('http://localhost:8000/ats-score/1');
+    //const response = await axios.post('http://localhost:8000/score', formData);
     
-    // ✅ Redirect to ResumePreview with scoreData passed as route state
+    // Redirect to ResumePreview with scoreData passed as route state
     navigate('/resume-preview', { state: { scoreData: response.data.score_output } });
 
   } catch (error) {
