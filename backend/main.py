@@ -44,3 +44,16 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     token = create_access_token({"sub": user["email"]})
     return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/me")
+async def get_me(token: str = Depends(oauth2_scheme)):
+    payload = decode_access_token(token)
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    email = payload.get("sub")
+    user = await users_collection.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {"email": user["email"], "id": str(user["_id"])}
