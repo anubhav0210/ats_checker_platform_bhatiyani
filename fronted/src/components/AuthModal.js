@@ -1,137 +1,89 @@
-
-import React, { useState } from 'react';
+// src/components/AuthModal.js
+import React, { useState, useContext } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, TextField, Button, IconButton,
-  Typography, InputAdornment, Box, Divider
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions,
+  Button,
+  Box,
+  Typography,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import GoogleIcon from '@mui/icons-material/Google';
+import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+
+const BACKEND = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const AuthModal = ({ open, onClose }) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-  // Top of AuthModal.js
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const { login } = useContext(AuthContext);
+  const [isRegister, setIsRegister] = useState(false);
+  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
+  const handleChange = (k) => (e) => setForm((s) => ({ ...s, [k]: e.target.value }));
 
-  const toggleForm = () => setIsRegistering((prev) => !prev);
+  const handleSubmit = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      if (isRegister) {
+        await axios.post(`${BACKEND}/auth/register`, {
+          username: form.username,
+          email: form.email,
+          password: form.password,
+        });
+        // after register, switch to login
+        setIsRegister(false);
+      } else {
+        // login
+        const res = await axios.post(`${BACKEND}/auth/login`, {
+          email: form.email,
+          password: form.password,
+        });
+        const token = res.data.access_token;
+        login(token);
+        onClose();
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-     <DialogContent>
-  {/* Toggle back to login or register if resetting password */}
-  {isResettingPassword ? (
-    <>
-      <Typography variant="body2" sx={{ mb: 2 }}>
-        Enter your email address to receive password reset instructions.
-      </Typography>
-      <Box component="form" noValidate sx={{ mt: 2 }}>
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Email"
-          type="email"
-        />
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{ mt: 2 }}
-          onClick={() => {
-            alert('Reset link sent to email (placeholder)');
-            setIsResettingPassword(false);
-          }}
-        >
-          Send Reset Link
-        </Button>
-        <Button
-          fullWidth
-          sx={{ mt: 1 }}
-          onClick={() => setIsResettingPassword(false)}
-        >
-          Back to Sign In
-        </Button>
-      </Box>
-    </>
-  ) : (
-    <>
-      {/* Login or Register Toggle */}
-      <Typography variant="body2" sx={{ mb: 2 }}>
-        {isRegistering
-          ? "Already have an account? "
-          : "Don't have an account? "}
-        <Button variant="text" size="small" onClick={() => {
-          setIsRegistering((prev) => !prev);
-          setIsResettingPassword(false);
-        }}>
-          {isRegistering ? 'Sign in' : 'Register'}
-        </Button>
-      </Typography>
-
-      {/* Social Icons */}
-      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 2 }}>
-        <IconButton><GoogleIcon /></IconButton>
-
-      </Box>
-
-      <Divider>or</Divider>
-
-      <Box component="form" noValidate sx={{ mt: 2 }}>
-        {isRegistering && (
+      <DialogTitle>{isRegister ? 'Create an account' : 'Sign in'}</DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+          {isRegister && (
+            <TextField label="Username" value={form.username} onChange={handleChange('username')} fullWidth />
+          )}
+          <TextField label="Email" value={form.email} onChange={handleChange('email')} fullWidth />
           <TextField
-            margin="normal"
+            label="Password"
+            type="password"
+            value={form.password}
+            onChange={handleChange('password')}
             fullWidth
-            label="Full Name"
-            type="text"
           />
-        )}
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Email"
-          type="email"
-        />
-        <TextField
-          margin="normal"
-          fullWidth
-          label="Password"
-          type={showPassword ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword((s) => !s)}>
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            )
-          }}
-        />
-        {/* Forgot password logic */}
-        {!isRegistering && (
-          <Typography variant="body2" sx={{ mt: 1, mb: 2 }}>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => {
-                setIsResettingPassword(true);
-                setIsRegistering(false);
-              }}
-            >
-              Forgot your password?
-            </Button>
-          </Typography>
-        )}
-        <Button variant="contained" fullWidth>
-          {isRegistering ? 'Register' : 'Sign In'}
-        </Button>
-      </Box>
-    </>
-  )}
-  </DialogContent>
+          {error && <Typography color="error">{error}</Typography>}
+        </Box>
+      </DialogContent>
 
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={() => setIsRegister((s) => !s)} color="inherit">
+          {isRegister ? 'Have an account?' : 'Create account'}
+        </Button>
+        <Button onClick={handleSubmit} variant="contained" disabled={loading}>
+          {isRegister ? 'Register' : 'Login'}
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };
 
 export default AuthModal;
+
