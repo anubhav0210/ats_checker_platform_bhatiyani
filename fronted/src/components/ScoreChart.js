@@ -1,25 +1,40 @@
 // src/components/ScoreChart.js
+// src/components/ScoreChart.js
 import React from 'react';
-import { Radar } from 'react-chartjs-2';
-import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
+import { Doughnut } from 'react-chartjs-2';
+import { Box, Typography } from '@mui/material';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
 
-// Radar chart for displaying score breakdown
-const ScoreChart = ({ scores }) => {
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const ScoreChart = ({ value = 0 }) => {
   const data = {
-    labels: ['Skills', 'Experience', 'Format', 'Keywords'],
+    labels: ['Matched', 'Unmatched'],
     datasets: [
       {
-        label: 'Resume Score',
-        data: [scores.skills_score, scores.experience_score, scores.format_score, scores.keywords_score],
-        backgroundColor: 'rgba(34, 202, 236, 0.2)',
-        borderColor: 'rgba(34, 202, 236, 1)',
-        borderWidth: 1,
+        data: [value, 100 - value],
+        backgroundColor: ['#1976d2', '#e0e0e0'],
+        hoverOffset: 6,
       },
     ],
   };
 
-  return <Radar data={data} />;
+  return (
+    <Box display="flex" alignItems="center" gap={3}>
+      <Box width={200}>
+        <Doughnut data={data} />
+      </Box>
+      <Box>
+        <Typography variant="h4">{value}%</Typography>
+        <Typography variant="body2" color="text.secondary">ATS Match</Typography>
+      </Box>
+    </Box>
+  );
 };
 
 export default ScoreChart;
