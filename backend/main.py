@@ -1,23 +1,41 @@
+# main.py
+# FastAPI application entrypoint, mounts routers, CORS, static upload folder
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from auth.routes import router as auth_router
-from routes.resume_routes import router as resume_router
+from dotenv import load_dotenv
+import os
+from auth import router as auth_router
+from resume import router as resume_router
 
-app = FastAPI(title="Smart Hiring Backend", version="1.0.0")
+load_dotenv()
 
-# CORS setup so frontend can connect
+app = FastAPI(title="Resume ATS Backend")
+
+# CORS - allow frontend origin (adjust as needed)
+FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to your frontend URL in production
+    allow_origins=[FRONTEND_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routes
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(resume_router, prefix="/resume", tags=["Resume ATS"])
+app.include_router(auth_router)
+app.include_router(resume_router)
+
+# Serve uploaded files (optional)
+from fastapi.staticfiles import StaticFiles
+UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/")
-def root():
-    return {"message": "Welcome to Smart Hiring API"}
+async def root():
+    return {"msg": "Resume ATS Backend running"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

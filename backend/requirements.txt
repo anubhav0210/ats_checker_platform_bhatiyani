@@ -1,6 +1,9 @@
 fastapi
-uvicorn
-pymongo
-python-dotenv
+uvicorn[standard]
+python-multipart
+motor
+python-jose[cryptography]
 passlib[bcrypt]
-pyjwt
+pymupdf           # for PDF parsing (fitz)
+python-dotenv
+python-dateutil
