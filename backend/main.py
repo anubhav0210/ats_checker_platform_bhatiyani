@@ -36,3 +36,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return {"msg": "Registration successful"}
 
+@app.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = await users_collection.find_one({"email": form_data.username})
+    if not user or not verify_password(form_data.password, user["hashed_password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = create_access_token({"sub": user["email"]})
+    return {"access_token": token, "token_type": "bearer"}
