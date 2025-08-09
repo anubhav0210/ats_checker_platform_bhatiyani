@@ -1,20 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from auth import router as auth_router
+from auth.routes import router as auth_router
+from routes.resume_routes import router as resume_router
 
-app = FastAPI()
+app = FastAPI(title="Smart Hiring Backend", version="1.0.0")
 
-# CORS settings for React frontend
+# CORS setup so frontend can connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to frontend URL in production
+    allow_origins=["*"],  # Change this to your frontend URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
+# Include routes
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(resume_router, prefix="/resume", tags=["Resume ATS"])
 
 @app.get("/")
-def home():
-    return {"msg": "Smart Hiring API Running"}
+def root():
+    return {"message": "Welcome to Smart Hiring API"}
