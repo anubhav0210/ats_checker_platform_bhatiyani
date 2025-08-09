@@ -1,6 +1,11 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
 
-MONGO_URI = "mongodb://localhost:27017"
-client = AsyncIOMotorClient(MONGO_URI)
-db = client["smart_hiring_db"]
-users_collection = db["users"]
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+client = MongoClient(MONGO_URL)
+db = client["smart_hiring"]  # Database name
+users_collection = db["users"]  # Collection for storing users
+
