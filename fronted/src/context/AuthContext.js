@@ -1,4 +1,3 @@
-// src/context/AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -18,8 +17,19 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = (accessToken) => {
-    setToken(accessToken);
+  const login = async (email, password) => {
+    try {
+      const res = await axios.post('http://localhost:8000/auth/login', {
+        email,
+        password,
+      });
+      setToken(res.data.access_token);
+      // Optionally decode token or fetch user info here
+      setUser({ email }); 
+      return true;
+    } catch (err) {
+      return false;
+    }
   };
 
   const logout = () => {
@@ -28,8 +38,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+

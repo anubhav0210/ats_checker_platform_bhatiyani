@@ -1,69 +1,183 @@
 // src/components/Navbar.js
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
-  Box
+  Box,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Menu,
+  MenuItem
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import AuthModal from './AuthModal';
+import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const Navbar = () => {
   const { token, logout } = useContext(AuthContext);
-  const [openAuth, setOpenAuth] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const navItems = [
-    { text: 'About', path: '/about' },
-    { text: 'Resume Upload', path: '/upload' },
-    { text: 'Resume Preview', path: '/preview' },
-    { text: 'Dashboard', path: '/dashboard' },
-  ];
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleNavClick = (path) => {
-    navigate(path);
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
-  const handleAuthClick = () => {
-    if (token) {
-      logout();
-      navigate('/');
-    } else {
-      setOpenAuth(true);
-    }
+  const toggleDrawer = (open) => () => {
+    setDrawerOpen(open);
   };
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const guestLinks = (
+    <>
+      <Button color="inherit" component={Link} to="/login">
+        Login
+      </Button>
+      <Button color="inherit" component={Link} to="/register">
+        Register
+      </Button>
+    </>
+  );
+
+  const authLinks = (
+    <>
+      <Button color="inherit" component={Link} to="/dashboard">
+        Dashboard
+      </Button>
+      <Button color="inherit" component={Link} to="/upload">
+        Upload
+      </Button>
+      <Button color="inherit" component={Link} to="/preview">
+        Preview
+      </Button>
+      <Button color="inherit" onClick={handleLogout}>
+        Logout
+      </Button>
+    </>
+  );
+
+  const mobileMenuItems = !token
+    ? [
+       { text: 'Login', path: '/login' },
+        { text: 'Register', path: '/register' },
+        { text: 'About', path: '/' },
+       
+      ]
+    : [
+      { text: 'Logout', action: handleLogout },
+        { text: 'About', path: '/' },
+        { text: 'Dashboard', path: '/dashboard' },
+        { text: 'Upload', path: '/upload' },
+        { text: 'Preview', path: '/preview' },
+      ];
 
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Typography
-            variant="h6"
-            sx={{ cursor: 'pointer' }}
-            onClick={() => navigate('/')}
-          >
-            Resume ATS Platform
-          </Typography>
+    <AppBar position="static">
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        {/* Logo */}
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          sx={{ color: 'inherit', textDecoration: 'none' }}
+        >
+          Resume ATS
+        </Typography>
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            {navItems.map((item) => (
-              <Button key={item.path} color="inherit" onClick={() => handleNavClick(item.path)}>
-                {item.text}
-              </Button>
-            ))}
-            <Button color="inherit" onClick={handleAuthClick}>
-              {token ? 'Logout' : 'Login'}
+        {/* Desktop View */}
+        {!isMobile ? (
+          <Box>
+            <Button color="inherit" component={Link} to="/">
+              About
             </Button>
+            {token ? authLinks : guestLinks}
           </Box>
-        </Toolbar>
-      </AppBar>
+        ) : (
+          // Mobile View: Hamburger or Profile Icon
+          <>
+            {!token ? (
+              <IconButton
+                color="inherit"
+                edge="end"
+                onClick={toggleDrawer(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+            ) : (
+              <div>
+                <IconButton
+                  color="inherit"
+                  onClick={handleMenu}
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={() => { navigate('/dashboard'); handleClose(); }}>Dashboard</MenuItem>
+                  <MenuItem onClick={() => { navigate('/upload'); handleClose(); }}>Upload</MenuItem>
+                  <MenuItem onClick={() => { navigate('/preview'); handleClose(); }}>Preview</MenuItem>
+                  <MenuItem onClick={() => { handleLogout(); handleClose(); }}>Logout</MenuItem>
+                </Menu>
+              </div>
+            )}
+          </>
+        )}
+      </Toolbar>
 
-      <AuthModal open={openAuth} onClose={() => setOpenAuth(false)} />
-    </>
+      {/* Drawer for mobile guest users */}
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <Box
+          sx={{ width: 250 }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+        >
+          <List>
+            {mobileMenuItems.map(({ text, path, action }, index) => (
+              <ListItem
+                button
+                key={index}
+                onClick={() => {
+                  if (action) {
+                    action();
+                  } else {
+                    navigate(path);
+                  }
+                }}
+              >
+                <ListItemText primary={text} />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </AppBar>
   );
 };
 
 export default Navbar;
+
+
+
+

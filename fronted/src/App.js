@@ -1,35 +1,59 @@
-// App.js
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import About from './components/About';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
 import ResumeUpload from './components/ResumeUpload';
 import ResumePreview from './components/ResumePreview';
-import Dashboard from './components/Dashboard';
+import PrivateRoute from './components/PrivateRoute';
+import Register from './components/Register';
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      <Navbar />
       <Routes>
+        {/* Public pages */}
         <Route path="/" element={<About />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/upload" element={<ResumeUpload />} />
-        <Route path="/preview" element={<ResumePreview />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected pages */}
         <Route
           path="/dashboard"
           element={
-            isLoggedIn ? <Dashboard /> : <Navigate to="/" replace />
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
           }
         />
+        <Route
+          path="/upload"
+          element={
+            <PrivateRoute>
+              <ResumeUpload />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/preview"
+          element={
+            <PrivateRoute>
+              <ResumePreview />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Redirect any unknown route to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );
 };
 
 export default App;
+
 
 
 
