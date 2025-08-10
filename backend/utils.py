@@ -1,6 +1,5 @@
 # utils.py
 # Utility helpers: PDF parsing, scoring, filename helpers
-
 import os
 import uuid
 import fitz   # pymupdf

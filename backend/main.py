@@ -1,6 +1,9 @@
 # main.py
 # FastAPI application entrypoint, mounts routers, CORS, static upload folder
 
+# main.py
+# FastAPI application entrypoint, mounts routers, CORS, static upload folder
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv

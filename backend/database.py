@@ -1,6 +1,3 @@
-# database.py
-# MongoDB connection using Motor (async client)
-
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from dotenv import load_dotenv
