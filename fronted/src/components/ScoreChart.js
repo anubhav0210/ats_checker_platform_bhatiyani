@@ -1,40 +1,73 @@
 // src/components/ScoreChart.js
-// src/components/ScoreChart.js
-import React from 'react';
-import { Doughnut } from 'react-chartjs-2';
-import { Box, Typography } from '@mui/material';
+import React from "react";
 import {
   Chart as ChartJS,
-  ArcElement,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
   Tooltip,
   Legend
-} from 'chart.js';
+);
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const ScoreChart = ({ previousScores = [], latestScore = null }) => {
+  const labels = [
+    ...previousScores.map((_, idx) => `Attempt ${idx + 1}`),
+    ...(latestScore !== null ? ["Latest"] : []),
+  ];
 
-const ScoreChart = ({ value = 0 }) => {
   const data = {
-    labels: ['Matched', 'Unmatched'],
+    labels,
     datasets: [
       {
-        data: [value, 100 - value],
-        backgroundColor: ['#1976d2', '#e0e0e0'],
-        hoverOffset: 6,
+        label: "ATS Score",
+        data: latestScore !== null ? [...previousScores, latestScore] : previousScores,
+        fill: false,
+        borderColor: "#1976d2",
+        backgroundColor: "#1976d2",
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 7,
       },
     ],
   };
 
-  return (
-    <Box display="flex" alignItems="center" gap={3}>
-      <Box width={200}>
-        <Doughnut data={data} />
-      </Box>
-      <Box>
-        <Typography variant="h4">{value}%</Typography>
-        <Typography variant="body2" color="text.secondary">ATS Match</Typography>
-      </Box>
-    </Box>
-  );
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: "top" },
+      tooltip: { enabled: true },
+    },
+    scales: {
+      y: {
+        min: 0,
+        max: 100,
+        title: {
+          display: true,
+          text: "Score (%)",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Attempts",
+        },
+      },
+    },
+  };
+
+  return <Line data={data} options={options} />;
 };
 
 export default ScoreChart;
+
