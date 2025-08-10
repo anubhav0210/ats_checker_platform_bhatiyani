@@ -1,8 +1,5 @@
 # auth.py
-# Authentication routes: register, login, get current user (me)
-# Uses JWT (python-jose) and password hashing (passlib)
-
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Header
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from jose import jwt, JWTError
@@ -11,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from database import users_collection
 from typing import Optional
+from bson import ObjectId
 
 load_dotenv()
 
@@ -22,7 +20,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-# Pydantic models for request/response
+# Pydantic models
 class RegisterIn(BaseModel):
     username: str
     email: EmailStr
@@ -60,8 +58,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded
 
 # Dependency to get current user from Authorization header
-from fastapi import Header, Request
-
 async def get_current_user(authorization: Optional[str] = Header(None)):
     if authorization is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing auth header")
@@ -71,42 +67,51 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
-        if user_id is None:
+        if not user_id:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token decode error")
-
-    user = await users_collection.find_one({"_id": user_id})
+    try:
+        oid = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user id in token")
+    user = await users_collection.find_one({"_id": oid})
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    return {"id": user["_id"], "username": user["username"], "email": user["email"]}
+    return {"id": str(user["_id"]), "username": user["username"], "email": user["email"]}
 
 # Routes
 @router.post("/register", status_code=201)
 async def register(payload: RegisterIn):
-    # check if email already exists
     existing = await users_collection.find_one({"email": payload.email})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+    # optional: check username
+    existing_username = await users_collection.find_one({"username": payload.username})
+    if existing_username:
+        raise HTTPException(status_code=400, detail="Username already taken")
+
     hashed = get_password_hash(payload.password)
     user_doc = {
-        "_id": os.urandom(12).hex(),  # short unique id
         "username": payload.username,
         "email": payload.email,
         "password": hashed,
         "created_at": datetime.utcnow().isoformat()
     }
-    await users_collection.insert_one(user_doc)
-    return {"msg": "User created"}
+    result = await users_collection.insert_one(user_doc)
+    # return minimal response
+    return {"msg": "User created", "id": str(result.inserted_id)}
 
 @router.post("/login", response_model=TokenOut)
 async def login(payload: LoginIn):
     user = await users_collection.find_one({"email": payload.email})
     if not user or not verify_password(payload.password, user.get("password", "")):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    access_token = create_access_token({"sub": user["_id"]})
+    access_token = create_access_token({"sub": str(user["_id"])})
     return {"access_token": access_token}
 
 @router.get("/me", response_model=UserOut)
 async def me(current_user=Depends(get_current_user)):
     return {"id": current_user["id"], "username": current_user["username"], "email": current_user["email"]}
+
+

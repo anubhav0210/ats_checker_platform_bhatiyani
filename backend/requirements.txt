@@ -1,9 +1,9 @@
 fastapi
 uvicorn[standard]
-python-multipart
+python-dotenv
 motor
 python-jose[cryptography]
 passlib[bcrypt]
-pymupdf           # for PDF parsing (fitz)
-python-dotenv
+python-multipart
+pymupdf
 python-dateutil

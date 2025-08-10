@@ -1,21 +1,16 @@
 # main.py
-# FastAPI application entrypoint, mounts routers, CORS, static upload folder
-
-# main.py
-# FastAPI application entrypoint, mounts routers, CORS, static upload folder
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
 from auth import router as auth_router
 from resume import router as resume_router
+from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
 app = FastAPI(title="Resume ATS Backend")
 
-# CORS - allow frontend origin (adjust as needed)
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
@@ -28,8 +23,6 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(resume_router)
 
-# Serve uploaded files (optional)
-from fastapi.staticfiles import StaticFiles
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
@@ -37,7 +30,6 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 @app.get("/")
 async def root():
     return {"msg": "Resume ATS Backend running"}
-
 
 if __name__ == "__main__":
     import uvicorn
