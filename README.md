@@ -97,7 +97,7 @@ SECRET_KEY=your-secret-key
 ```bash
 # Terminal 1 - Backend
 cd backend
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
 
 # Terminal 2 - Frontend
 cd frontend
