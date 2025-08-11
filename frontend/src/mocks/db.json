@@ -1,0 +1,26 @@
+
+
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "$2a$10$examplehashedpassword"
+    }
+  ],
+  "resumes": [
+    {
+      "id": "1",
+      "user_id": "1",
+      "resume_name": "Sample Resume",
+      "filename": "sample.pdf",
+      "original_name": "myresume.pdf",
+      "uploaded_at": "2023-05-15T10:00:00Z",
+      "score": 85,
+      "matched_keywords": ["react", "node", "mongodb"],
+      "job_description": "Looking for a full stack developer",
+      "file_url": "/uploads/sample.pdf"
+    }
+  ]
+}

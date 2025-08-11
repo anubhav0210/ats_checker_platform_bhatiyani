@@ -1,4 +1,4 @@
-// src/api.js
+// src/api/realBackend.js
 import axios from "axios";
 
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -33,14 +33,14 @@ api.interceptors.response.use(
   }
 );
 
-export const authAPI = {
+const authAPI = {
   login: (email, password) => api.post("/auth/login", { email, password }),
   register: (username, email, password) => 
     api.post("/auth/register", { username, email, password }),
   getMe: () => api.get("/auth/me"),
 };
 
-export const resumeAPI = {
+const resumeAPI = {
   uploadResume: (formData) => api.post("/api/resumes", formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -51,4 +51,11 @@ export const resumeAPI = {
   deleteResume: (id) => api.delete(`/api/resumes/${id}`),
 };
 
-export default api;
+// Export as named exports for better tree-shaking
+export const realBackend = {
+  authAPI,
+  resumeAPI
+};
+
+// For backward compatibility if needed
+export default realBackend;

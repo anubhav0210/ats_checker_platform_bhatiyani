@@ -21,7 +21,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -29,20 +29,28 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(null);
     setLoading(true);
+    
     try {
       const response = await authAPI.login(email, password);
       const success = await login(email, password);
-      setLoading(false);
+      
       if (success) {
         navigate("/dashboard");
       } else {
         setError("Invalid credentials");
       }
     } catch (err) {
+      console.error('Login error:', err); // For debugging
+      const errorMessage = 
+        err.response?.data?.detail || 
+        err.response?.data?.message || 
+        err.message || 
+        "Login failed. Please try again.";
+      setError(errorMessage);
+    } finally {
       setLoading(false);
-      setError(err.response?.data?.detail || "Login failed. Please try again.");
     }
   };
 
@@ -79,7 +87,7 @@ const Login = () => {
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {String(error)} {/* This will properly display the error */}
           </Alert>
         )}
 
@@ -101,6 +109,7 @@ const Login = () => {
               ),
             }}
             disabled={loading}
+            error={!!error && email.length > 0} // Shows red line if error exists and email field isn't empty
           />
 
           <TextField
@@ -133,6 +142,7 @@ const Login = () => {
                 </InputAdornment>
               ),
             }}
+            error={!!error && password.length > 0} // Shows red line if error exists and password field isn't empty
           />
 
           <Box textAlign="right" mt={1} mb={3}>
