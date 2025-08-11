@@ -1,6 +1,6 @@
 # prompts.md
 
-This file documents the AI prompts used during the development of the **Smart Hiring Platform** project, which includes:
+This file documents the AI prompts used during the development of the **ATS_Checker_Platform** project, which includes:
 - Frontend (React + MUI + Chart.js)
 - Backend (FastAPI + MongoDB)
 - JSON Server (for mock/static data)
