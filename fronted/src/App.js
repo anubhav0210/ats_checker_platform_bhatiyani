@@ -1,43 +1,53 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import About from './components/About';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import ResumeUpload from './components/ResumeUpload';
-import ResumePreview from './components/ResumePreview';
-import PrivateRoute from './components/PrivateRoute';
-import Register from './components/Register';
+// src/App.js
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import About from "./components/About";
+import Login from "./components/Login";
+
+import ResumeForm from "./components/ResumeUpload";
+import ResumePreview from "./components/ResumePreview";
+import PrivateRoute from "./components/PrivateRoute";
+import Register from "./components/Register";
+import ResumeDashboard from "./components/ResumeDashboard";
 
 const App = () => {
   return (
     <>
       <Navbar />
       <Routes>
-        {/* Public pages */}
+        {/* Public */}
         <Route path="/" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected pages */}
+        {/* Protected */}
         <Route
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <ResumeDashboard />
             </PrivateRoute>
           }
         />
         <Route
-          path="/upload"
+          path="/resume/new"
           element={
             <PrivateRoute>
-              <ResumeUpload />
+              <ResumeForm />
             </PrivateRoute>
           }
         />
         <Route
-          path="/preview"
+          path="/resume/edit/:id"
+          element={
+            <PrivateRoute>
+              <ResumeForm />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/preview/:id"
           element={
             <PrivateRoute>
               <ResumePreview />
@@ -45,7 +55,7 @@ const App = () => {
           }
         />
 
-        {/* Redirect any unknown route to home */}
+        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
@@ -53,6 +63,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
