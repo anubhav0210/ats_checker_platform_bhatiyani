@@ -1,120 +1,155 @@
 # Resume ATS Checker Platform
 
-A scalable, full-stack Applicant Tracking System (ATS) Resume Checker platform designed to help users upload, parse, and score resumes intelligently. Built with React for the frontend and FastAPI for the backend, this platform supports PDF resume parsing, keyword-based scoring logic, and secure user authentication.
+![Project Banner](https://i.imgur.com/J5q8S5l.png) *Replace with your actual banner image*
 
----
+A full-stack platform for analyzing resume compatibility with Applicant Tracking Systems (ATS), featuring real/mock backend switching.
 
 ## Table of Contents
+- [Features](#features)
+- [Dual Backend Architecture](#dual-backend-architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Mock Data System](#mock-data-system)
+- [Contributing](#contributing)
+- [License](#license)
 
-- [Project Overview](#project-overview)  
-- [Features](#features)  
-- [Tech Stack](#tech-stack)  
-- [Installation](#installation)  
-- [Usage](#usage)  
-- [API Endpoints](#api-endpoints)  
-- [Authentication](#authentication)  
-- [Contributing](#contributing)  
-- [Contact](#contact)  
+## ✨ Features
 
----
+- **PDF Resume Analysis**
+  - ATS compatibility scoring
+  - Keyword matching
+  - Format evaluation
 
-## Project Overview
+- **User Management**
+  - JWT authentication
+  - Resume history tracking
+  - Profile management
 
-The Resume ATS Checker platform is designed to simplify the recruitment process by providing a robust, user-friendly system that analyzes resumes uploaded by candidates and scores them against job criteria. It consists of:
+- **Development Flexibility**
+  - Real FastAPI backend
+  - Mock JSON server
+  - Hot-swappable backends
 
-- **React frontend**: Responsive UI with dashboard, resume upload and preview, scoring visualization.
-- **FastAPI backend**: Handles PDF parsing, scoring algorithms, authentication, and CRUD operations with MongoDB.
-- **JWT Authentication**: Secure login and registration.
-- **MongoDB**: Stores user data, resume metadata, and scores.
+## 🏗️ Dual Backend Architecture
+```
+src/
+  api/
+    index.js          # API gateway
+    realBackend.js    # Production API
+    mockBackend.js    # Mock API
+  mocks/
+    db.json           # Mock data
+```
 
----
+**Switching Mechanism**:
+```javascript
+// api/index.js
+const USE_MOCK = process.env.REACT_APP_USE_MOCK === 'true';
+export const api = USE_MOCK ? mockBackend : realBackend;
+```
 
-## Features
-
-- Upload and preview PDF resumes
-- Intelligent keyword-based resume scoring
-- Candidate dashboard to track resume submissions and scores
-- User registration and login with JWT-based authentication
-- Responsive design supporting desktop and mobile
-- CRUD operations for user profiles and resumes
-
----
-
-## Tech Stack
-
-- **Frontend:** React, Material-UI (MUI), Chart.js (for data visualization)
-- **Backend:** FastAPI, Python
-- **Database:** MongoDB
-- **Authentication:** JSON Web Tokens (JWT)
-- **PDF Parsing:** Python libraries (e.g., PyPDF2 or pdfplumber ,others is mentioned in requirements.txt)
-
----
-
-## Installation
+## 🛠️ Installation
 
 ### Prerequisites
-
-- Node.js (v14+)
+- Node.js 16+
 - Python 3.8+
-- MongoDB instance running locally or remotely
-- `pip` for Python package installation
+- MongoDB
+- Git
 
-### Setup Frontend
-
+### Steps
 ```bash
+# Clone repository
+git clone https://github.com/yourusername/resume-ats-checker.git
+cd resume-ats-checker
+
+# Frontend setup
 cd frontend
 npm install
+
+# Backend setup
+cd ../backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+## ⚙️ Configuration
+
+Create `.env` files:
+
+**frontend/.env**
+```env
+REACT_APP_API_URL=http://localhost:8000
+REACT_APP_USE_MOCK=false
+```
+
+**backend/.env**
+```env
+MONGO_URI=mongodb://localhost:27017/ats_checker
+SECRET_KEY=your-secret-key
+```
+
+## 🚀 Running the Application
+
+### Production Mode
+```bash
+# Terminal 1 - Backend
+cd backend
+uvicorn main:app --reload
+
+# Terminal 2 - Frontend
+cd frontend
 npm start
 ```
 
-### Setup Backend
-
+### Mock Mode
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate    # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
+# Terminal 1 - Mock server
+cd frontend
+npm run mock:server
+
+# Terminal 2 - Frontend with mock data
+npm run start:mocked
 ```
 
----
+## 📚 API Documentation
 
-## Usage
+### Real Endpoints (FastAPI)
+| Endpoint         | Method | Description         |
+|------------------|--------|---------------------|
+| /auth/register   | POST   | User registration   |
+| /auth/login      | POST   | User login          |
+| /api/resumes     | POST   | Upload resume       |
+| /api/resumes     | GET    | List resumes        |
 
-1. Start the backend server (`http://localhost:8000`).
-2. Start the React frontend (`http://localhost:3000`).
-3. Register a new user or log in.
-4. Upload a resume PDF via the dashboard.
-5. View parsed resume data and scoring results.
-6. Manage user profile and resume submissions.
-
----
-
-## API Endpoints
-
-- `POST /auth/register` - Register new user  
-- `POST /auth/login` - Login user and receive JWT  
-- `POST /resumes/upload` - Upload and parse PDF resume  
-- `GET /resumes` - Get list of uploaded resumes for the user  
-- `GET /resumes/{id}` - Get details of a specific resume  
-- `DELETE /resumes/{id}` - Delete a resume  
-
----
-
-## Authentication
-
-Uses JWT tokens to secure API endpoints. Include the JWT token in the `Authorization` header as:
-
+### Mock Endpoints (JSON Server)
 ```
-Authorization: Bearer <token>
+http://localhost:3001/resumes
+http://localhost:3001/users
 ```
 
----
+## 🧪 Mock Data System
+
+### Sample db.json
+```json
+{
+  "resumes": [
+    {
+      "id": "1",
+      "user_id": "1",
+      "score": 78,
+      "keywords": ["React", "Node.js"]
+    }
+  ]
+}
+```
+
+**Customizing Mocks**:
+- Edit `frontend/src/mocks/db.json`
+- Add handlers in `mockBackend.js`
 
 
-## Contact
-
-For any questions or feedback, please contact:
-
-- Name - singhkrishna6052@gmail.com 
-- GitHub: [anubhav0210](https://http://github.com/anubhav0210)  
+**Contact**: singhkrishna6052@gmail.com  
+**GitHub**: [anubhav0210](https://github.com/anubhav0210)
