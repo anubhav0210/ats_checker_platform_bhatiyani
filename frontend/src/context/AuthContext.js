@@ -1,56 +1,66 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
+// src/context/AuthContext.js
+import { createContext, useState, useEffect, useCallback } from "react";
+import { authAPI } from "../api";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("access_token") || "");
   const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      localStorage.setItem("access_token", token);
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-      localStorage.removeItem("access_token");
-    }
-  }, [token]);
-
-  // ensure token is read on mount (already in initial state), but you can decode or fetch user here
-  useEffect(() => {
-    if (token && !user) {
-      // optional: fetch user profile if your backend exposes it
-      // axios.get(`${BACKEND}/auth/me`).then(...).catch(...)
-      setUser((u) => u || { /* minimal placeholder */ });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   const login = async (email, password) => {
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:8000"}/auth/login`, {
-        email,
-        password,
-      });
-      setToken(res.data.access_token);
-      setUser({ email });
+      const { data } = await authAPI.login(email, password);
+      localStorage.setItem("access_token", data.access_token);
+      setToken(data.access_token);
+      await fetchUser(); // Fetch complete user data after login
       return true;
     } catch (err) {
+      console.error("Login error:", err);
       return false;
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
+    localStorage.removeItem("access_token");
     setToken("");
     setUser(null);
-  };
+  }, []);
+
+  const fetchUser = useCallback(async () => {
+    try {
+      const { data } = await authAPI.getMe();
+      setUser(data);
+    } catch (err) {
+      console.error("Failed to fetch user:", err);
+      logout();
+    }
+  }, [logout]);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (token) {
+        await fetchUser();
+      }
+      setLoading(false);
+    };
+    initializeAuth();
+  }, [token, fetchUser]);
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        user,
+        loading,
+        login,
+        logout,
+        fetchUser,
+        isAuthenticated: !!token,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-

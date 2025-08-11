@@ -5,7 +5,7 @@ import { Box, Typography, CircularProgress, Button, Paper } from "@mui/material"
 import { Doughnut } from "react-chartjs-2";
 import "chart.js/auto";
 
-const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
+import { resumeAPI } from "../api";
 
 export default function ResumePreview() {
   const { id } = useParams();
@@ -14,31 +14,22 @@ export default function ResumePreview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchResume = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const token = localStorage.getItem("access_token");
-        const res = await fetch(`${BACKEND}/api/resumes/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          const payload = await res.json().catch(() => ({}));
-          throw new Error(payload.detail || "Failed to load resume");
-        }
-        const data = await res.json();
-        setResume(data);
-      } catch (err) {
-        console.error(err);
-        setError(err.message || "Failed to load resume");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResume();
-  }, [id]);
-
+ useEffect(() => {
+  const fetchResume = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await resumeAPI.getResume(id);
+      setResume(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Failed to load resume");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchResume();
+}, [id]);
   if (loading)
     return (
       <Box sx={{ mt: 6, textAlign: "center" }}>

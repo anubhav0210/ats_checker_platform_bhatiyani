@@ -13,6 +13,7 @@ import {
 import { Visibility, VisibilityOff, Email, Lock } from "@mui/icons-material";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { authAPI } from "../api";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -31,6 +32,7 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
+      const response = await authAPI.login(email, password);
       const success = await login(email, password);
       setLoading(false);
       if (success) {
@@ -38,9 +40,9 @@ const Login = () => {
       } else {
         setError("Invalid credentials");
       }
-    } catch {
+    } catch (err) {
       setLoading(false);
-      setError("Login failed. Please try again.");
+      setError(err.response?.data?.detail || "Login failed. Please try again.");
     }
   };
 
@@ -56,18 +58,20 @@ const Login = () => {
           textAlign: "center",
         }}
       >
-        <Typography  variant="h5"
+        <Typography
+          variant="h5"
           fontWeight="bold"
           mb={1}
           sx={{
             background: "linear-gradient(90deg, #de9714ff, #cf9b19ff)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-          }}>
+          }}
+        >
           Sign in to your account
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link component={RouterLink} to="/register" underline="hover">
             Register here
           </Link>
@@ -165,7 +169,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
-
