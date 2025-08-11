@@ -77,7 +77,7 @@ export default function ResumePreview() {
     >
       {/* Left Side: Info + Chart */}
       <Paper sx={{ p: 2, flex: 1 }}>
-        <Typography variant="h2">
+        <Typography variant="h6">
           {resume.resume_name || resume.original_name}
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -86,7 +86,7 @@ export default function ResumePreview() {
 
         <Box
           sx={{
-            width: 250,
+            width: 200,
             mx: "auto",
             position: "relative",
             mt: 4,
@@ -95,7 +95,7 @@ export default function ResumePreview() {
         >
           <Doughnut data={chartData} />
           <Typography
-            variant="h4"
+            variant="h6"
             sx={{
               position: "absolute",
               top: "50%",
@@ -108,7 +108,7 @@ export default function ResumePreview() {
           </Typography>
         </Box>
 
-        <Typography variant="h4">
+        <Typography variant="h7">
           Matched keywords:{" "}
           {resume.matched_keywords?.length
             ? resume.matched_keywords.join(", ")
