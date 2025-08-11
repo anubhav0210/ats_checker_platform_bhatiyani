@@ -62,11 +62,8 @@ const Navbar = () => {
       <Button color="inherit" component={Link} to="/dashboard">
         Dashboard
       </Button>
-      <Button color="inherit" component={Link} to="/upload">
+      <Button color="inherit" component={Link} to="/resume/new">
         Upload
-      </Button>
-      <Button color="inherit" component={Link} to="/preview">
-        Preview
       </Button>
       <Button color="inherit" onClick={handleLogout}>
         Logout
@@ -85,8 +82,7 @@ const Navbar = () => {
       { text: 'Logout', action: handleLogout },
         { text: 'About', path: '/' },
         { text: 'Dashboard', path: '/dashboard' },
-        { text: 'Upload', path: '/upload' },
-        { text: 'Preview', path: '/preview' },
+        { text: 'Upload', path: '/resume/new' },
       ];
 
   return (
@@ -135,8 +131,7 @@ const Navbar = () => {
                   onClose={handleClose}
                 >
                   <MenuItem onClick={() => { navigate('/dashboard'); handleClose(); }}>Dashboard</MenuItem>
-                  <MenuItem onClick={() => { navigate('/upload'); handleClose(); }}>Upload</MenuItem>
-                  <MenuItem onClick={() => { navigate('/preview'); handleClose(); }}>Preview</MenuItem>
+                  <MenuItem onClick={() => { navigate('/resume/new'); handleClose(); }}>Upload</MenuItem>
                   <MenuItem onClick={() => { handleLogout(); handleClose(); }}>Logout</MenuItem>
                 </Menu>
               </div>
