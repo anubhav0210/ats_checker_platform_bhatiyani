@@ -1,23 +1,22 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import React from "react";
 
 const Footer = () => {
   return (
-    <Box
-      component="footer"
-      sx={{
-        py: 3,
-        px: 2,
-        mt: 'auto',
-        backgroundColor: '#1e1e2f',
-        color: '#fff',
-        textAlign: 'center',
+    <footer
+      style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        width: "100%",
+        backgroundColor: "#333",
+        color: "#fff",
+        textAlign: "center",
+        padding: "10px",
+        zIndex: 1000
       }}
     >
-      <Typography variant="body2">
-        © {new Date().getFullYear()} Resume ATS Checker. All rights reserved.
-      </Typography>
-    </Box>
+      © {new Date().getFullYear()} Ats Checker. All rights reserved.
+    </footer>
   );
 };
 
