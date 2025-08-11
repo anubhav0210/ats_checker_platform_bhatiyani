@@ -1,15 +1,29 @@
 // src/components/ResumeDashboard.jsx
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, CircularProgress, Grid, Paper, Stack } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  CircularProgress,
+  Grid,
+  Paper,
+  Stack,
+  Chip,
+  IconButton,
+  Tooltip
+} from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
 
 const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 export default function ResumeDashboard() {
-  const navigate = useNavigate();
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState(null);
+  const navigate = useNavigate();
 
   const fetchResumes = async () => {
     setLoading(true);
@@ -41,10 +55,7 @@ export default function ResumeDashboard() {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.status !== 204) {
-        const payload = await res.json().catch(() => ({}));
-        throw new Error(payload.detail || "Delete failed");
-      }
+      if (res.status !== 204) throw new Error("Delete failed");
       fetchResumes();
     } catch (err) {
       console.error(err);
@@ -52,29 +63,108 @@ export default function ResumeDashboard() {
     }
   };
 
-  if (loading) return <CircularProgress />;
+  const getScoreColor = (score) => {
+    if (score >= 75) return "success";
+    if (score >= 50) return "warning";
+    return "error";
+  };
+
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" mt={6}>
+        <CircularProgress />
+      </Box>
+    );
 
   return (
     <Box sx={{ mt: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Your Resumes</Typography>
-        <Button variant="contained" onClick={() => navigate("/resume/new")}>Upload New</Button>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" fontWeight={600}>
+          📄 Your Resumes
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<CloudUploadIcon />}
+          onClick={() => navigate("/resume/new")}
+        >
+          Upload New
+        </Button>
       </Box>
 
+      {/* Empty State */}
       {resumes.length === 0 ? (
-        <Typography>No resumes yet. Upload one!</Typography>
+        <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3, boxShadow: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            No resumes yet 📂
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Upload your first resume to get started.
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+            onClick={() => navigate("/resume/new")}
+          >
+            Upload Resume
+          </Button>
+        </Paper>
       ) : (
-        <Grid container spacing={2}>
-          {resumes.map(r => (
-            <Grid item xs={12} md={6} key={r.id}>
-              <Paper sx={{ p: 2 }}>
-                <Typography sx={{ fontWeight: 600 }}>{r.resume_name}</Typography>
-                <Typography variant="body2" color="text.secondary">Uploaded: {r.uploaded_at}</Typography>
-                <Typography variant="body2">Score: {r.score ?? "N/A"}%</Typography>
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  <Button size="small" variant="outlined" onClick={() => navigate(`/preview/${r.id}`)}>View</Button>
-                  <Button size="small" variant="outlined" onClick={() => navigate(`/resume/new?edit=${r.id}`)}>Re-check</Button>
-                  <Button size="small" variant="outlined" color="error" onClick={() => handleDelete(r.id)}>Delete</Button>
+        <Grid container spacing={3}>
+          {resumes.map((r) => (
+            <Grid item xs={12} md={6} lg={4} key={r.id}>
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  {r.resume_name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Uploaded: {new Date(r.uploaded_at).toLocaleDateString()}
+                </Typography>
+
+                {/* Score */}
+                <Chip
+                  label={`Score: ${r.score ?? "N/A"}%`}
+                  color={r.score ? getScoreColor(r.score) : "default"}
+                  sx={{ mt: 1, fontWeight: 500 }}
+                />
+
+                {/* Actions */}
+                <Stack direction="row" spacing={1} mt={2}>
+                  <Tooltip title="View Resume">
+                    <IconButton
+                      color="primary"
+                      onClick={() => navigate(`/preview/${r.id}`)}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Re-check Resume">
+                    <IconButton
+                      color="warning"
+                      onClick={() => navigate(`/resume/new?edit=${r.id}`)}
+                    >
+                      <RefreshIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete Resume">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(r.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Stack>
               </Paper>
             </Grid>
@@ -84,3 +174,4 @@ export default function ResumeDashboard() {
     </Box>
   );
 }
+
