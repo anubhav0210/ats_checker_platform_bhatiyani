@@ -5,6 +5,7 @@ This file documents the AI prompts used during the development of the **ATS_Chec
 - Backend (FastAPI + MongoDB)
 - JSON Server (for mock/static data)
 - Authentication & Resume ATS Scoring System
+- Centralized API integration with backend switching
 
 ---
 
@@ -96,11 +97,11 @@ Simulate job listing functionality without requiring a live API.
 
 ---
 
-## 12. Job Listing Page
+## 12. Centralized API Service & Switching Between Backends
 **Prompt:**  
-"Create a React component to fetch and display job listings from JSON Server with search and filter options."  
+"Create a single API service file in React to handle all Axios requests, with the ability to switch between mock JSON server and real FastAPI backend using a configuration flag."  
 **Purpose:**  
-Provide users with relevant job information.
+Make backend switching seamless without changing individual components.
 
 ---
 
