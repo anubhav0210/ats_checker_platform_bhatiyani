@@ -4,7 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import About from "./components/About";
 import Login from "./components/Login";
-
+import Footer from "./components/Footer";
 import ResumeForm from "./components/ResumeUpload";
 import ResumePreview from "./components/ResumePreview";
 import PrivateRoute from "./components/PrivateRoute";
@@ -58,6 +58,7 @@ const App = () => {
         {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Footer />
     </>
   );
 };
