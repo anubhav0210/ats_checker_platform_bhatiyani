@@ -56,7 +56,14 @@ const Login = () => {
           textAlign: "center",
         }}
       >
-        <Typography variant="h5" fontWeight="bold" mb={2}>
+        <Typography  variant="h5"
+          fontWeight="bold"
+          mb={1}
+          sx={{
+            background: "linear-gradient(90deg, #de9714ff, #cf9b19ff)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
           Sign in to your account
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
@@ -137,6 +144,17 @@ const Login = () => {
             fullWidth
             size="large"
             disabled={loading}
+            sx={{
+              mt: 3,
+              py: 1.2,
+              borderRadius: 2,
+              fontWeight: "bold",
+              background: "linear-gradient(90deg, #4CAF50, #17ef22ff)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #43A047, #37ed40ff)",
+              },
+              transition: "all 0.3s ease",
+            }}
           >
             {loading ? "Signing in..." : "Sign In"}
           </Button>
