@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from database import users_collection
 from typing import Optional
 from bson import ObjectId
+from fastapi.security import OAuth2PasswordBearer
 
 load_dotenv()
 
