@@ -1,6 +1,7 @@
 # resume.py
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi import status
 from typing import Optional
 import os
 from dotenv import load_dotenv
@@ -12,13 +13,16 @@ from bson import ObjectId
 
 load_dotenv()
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-router = APIRouter(prefix="/resume", tags=["resume"])
+router = APIRouter(prefix="/api/resumes", tags=["resumes"])
 
-@router.post("/upload")
+# POST /api/resumes  -> upload new resume
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def upload_resume(
     file: UploadFile = File(...),
-    job_description: str = Form(...),
+    resume_name: str = Form(...),
+    job_description: str = Form(""),
     current_user: dict = Depends(get_current_user)
 ):
     if file.content_type not in ("application/pdf",):
@@ -31,6 +35,7 @@ async def upload_resume(
 
     resume_doc = {
         "user_id": ObjectId(current_user["id"]),
+        "resume_name": resume_name,
         "filename": filename,
         "original_name": file.filename,
         "uploaded_at": datetime.utcnow().isoformat(),
@@ -41,25 +46,33 @@ async def upload_resume(
     }
     result = await resumes_collection.insert_one(resume_doc)
 
-    return JSONResponse({"score": score, "parsed_text": parsed_text})
+    file_url = f"{BACKEND_URL}/uploads/{filename}"
 
-@router.get("/all")
-async def all_resumes(current_user: dict = Depends(get_current_user)):
-    cursor = resumes_collection.find({"user_id": ObjectId(current_user["id"])}).sort("uploaded_at", -1).limit(50)
-    docs = await cursor.to_list(length=50)
-    # map shape expected by frontend Dashboard:
+    return JSONResponse({
+        "id": str(result.inserted_id),
+        "resume_name": resume_name,
+        "score": score,
+        "file_url": file_url,
+        "parsed_text": parsed_text
+    })
+
+# GET /api/resumes  -> list all resumes for current user
+@router.get("")
+async def list_resumes(current_user: dict = Depends(get_current_user)):
+    cursor = resumes_collection.find({"user_id": ObjectId(current_user["id"])}).sort("uploaded_at", -1).limit(200)
+    docs = await cursor.to_list(length=200)
     results = [
         {
-            "_id": str(d["_id"]),
-            "filePath": f"uploads/{d['filename']}",
-            "originalName": d.get("original_name"),
+            "id": str(d["_id"]),
+            "resume_name": d.get("resume_name"),
             "uploaded_at": d.get("uploaded_at"),
             "score": d.get("score"),
-            "matched_keywords": d.get("matched_keywords", []),
+            "file_url": f"{BACKEND_URL}/uploads/{d['filename']}",
         } for d in docs
     ]
     return results
 
+# GET /api/resumes/{id}
 @router.get("/{resume_id}")
 async def get_resume(resume_id: str, current_user: dict = Depends(get_current_user)):
     try:
@@ -71,8 +84,35 @@ async def get_resume(resume_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Not found")
     return {
         "id": str(doc["_id"]),
-        "originalName": doc["original_name"],
-        "filePath": f"uploads/{doc['filename']}",
+        "resume_name": doc.get("resume_name"),
+        "original_name": doc.get("original_name"),
+        "file_url": f"{BACKEND_URL}/uploads/{doc['filename']}",
         "score": doc.get("score"),
-        "parsed_text": doc.get("parsed_text", "")
+        "parsed_text": doc.get("parsed_text", ""),
+        "matched_keywords": doc.get("matched_keywords", []),
+        "uploaded_at": doc.get("uploaded_at")
     }
+
+# DELETE /api/resumes/{id}
+@router.delete("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_resume(resume_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        oid = ObjectId(resume_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid id")
+    doc = await resumes_collection.find_one({"_id": oid, "user_id": ObjectId(current_user["id"])})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # remove file from disk if exists
+    filename = doc.get("filename")
+    if filename:
+        path = os.path.join(UPLOAD_DIR, filename)
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+        except Exception:
+            pass
+
+    await resumes_collection.delete_one({"_id": oid})
+    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=None)
