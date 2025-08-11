@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# Resume ATS Checker Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A scalable, full-stack Applicant Tracking System (ATS) Resume Checker platform designed to help users upload, parse, and score resumes intelligently. Built with React for the frontend and FastAPI for the backend, this platform supports PDF resume parsing, keyword-based scoring logic, and secure user authentication.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Table of Contents
 
-### `npm start`
+- [Project Overview](#project-overview)  
+- [Features](#features)  
+- [Tech Stack](#tech-stack)  
+- [Installation](#installation)  
+- [Usage](#usage)  
+- [API Endpoints](#api-endpoints)  
+- [Authentication](#authentication)  
+- [Contributing](#contributing)  
+- [Contact](#contact)  
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project Overview
 
-### `npm test`
+The Resume ATS Checker platform is designed to simplify the recruitment process by providing a robust, user-friendly system that analyzes resumes uploaded by candidates and scores them against job criteria. It consists of:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **React frontend**: Responsive UI with dashboard, resume upload and preview, scoring visualization.
+- **FastAPI backend**: Handles PDF parsing, scoring algorithms, authentication, and CRUD operations with MongoDB.
+- **JWT Authentication**: Secure login and registration.
+- **MongoDB**: Stores user data, resume metadata, and scores.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Upload and preview PDF resumes
+- Intelligent keyword-based resume scoring
+- Candidate dashboard to track resume submissions and scores
+- User registration and login with JWT-based authentication
+- Responsive design supporting desktop and mobile
+- CRUD operations for user profiles and resumes
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Frontend:** React, Material-UI (MUI), Chart.js (for data visualization)
+- **Backend:** FastAPI, Python
+- **Database:** MongoDB
+- **Authentication:** JSON Web Tokens (JWT)
+- **PDF Parsing:** Python libraries (e.g., PyPDF2 or pdfplumber ,others is mentioned in requirements.txt)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Prerequisites
 
-## Learn More
+- Node.js (v14+)
+- Python 3.8+
+- MongoDB instance running locally or remotely
+- `pip` for Python package installation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Setup Frontend
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### Code Splitting
+### Setup Backend
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate    # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Usage
 
-### Making a Progressive Web App
+1. Start the backend server (`http://localhost:8000`).
+2. Start the React frontend (`http://localhost:3000`).
+3. Register a new user or log in.
+4. Upload a resume PDF via the dashboard.
+5. View parsed resume data and scoring results.
+6. Manage user profile and resume submissions.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## API Endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- `POST /auth/register` - Register new user  
+- `POST /auth/login` - Login user and receive JWT  
+- `POST /resumes/upload` - Upload and parse PDF resume  
+- `GET /resumes` - Get list of uploaded resumes for the user  
+- `GET /resumes/{id}` - Get details of a specific resume  
+- `DELETE /resumes/{id}` - Delete a resume  
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Authentication
 
-### `npm run build` fails to minify
+Uses JWT tokens to secure API endpoints. Include the JWT token in the `Authorization` header as:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+Authorization: Bearer <token>
+```
+
+---
+
+
+## Contact
+
+For any questions or feedback, please contact:
+
+- Name - singhkrishna6052@gmail.com 
+- GitHub: [anubhav0210](https://http://github.com/anubhav0210)  
