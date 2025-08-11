@@ -40,7 +40,7 @@ const About = () => {
               <Typography variant="h6" sx={{ mb: 3, color: 'text.secondary' }}>
                 Instantly analyze and improve your resume to get shortlisted by top companies.
               </Typography>
-                <Button variant="contained" onClick={() => navigate('/upload')}>
+                <Button variant="contained" onClick={() =>  navigate("/resume/new")}>
                 Upload Resume Now
               </Button>
             </motion.div>
