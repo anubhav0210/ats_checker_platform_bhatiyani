@@ -54,7 +54,7 @@ The Resume ATS Checker platform is designed to simplify the recruitment process 
 
 ### Prerequisites
 
-- FastApi
+- Node.js (v14+)
 - Python 3.8+
 - MongoDB instance running locally or remotely
 - `pip` for Python package installation
