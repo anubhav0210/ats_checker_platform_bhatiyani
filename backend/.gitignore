@@ -1,9 +1,27 @@
-# Python virtual environment
 venv/
 
-# Python cache files
+# Python bytecode and cache folders
 __pycache__/
 *.py[cod]
 
+# Environment variables file
+.env
+
 # VSCode settings folder
 .vscode/
+
+# Uploads folder (if you want to exclude user uploaded files)
+uploads/
+
+# Other common Python ignores
+*.pyo
+*.pyd
+.Python
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
