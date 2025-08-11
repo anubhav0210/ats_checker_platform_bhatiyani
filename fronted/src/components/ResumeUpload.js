@@ -1,8 +1,18 @@
 // src/components/ResumeUpload.jsx
-import React, { useState } from "react";
-import { Box, Button, TextField, Typography, Paper, Alert } from "@mui/material";
+import React, { useState, useCallback } from "react";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Alert,
+  CircularProgress
+} from "@mui/material";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 
 const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -14,16 +24,23 @@ export default function ResumeUpload() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    const f = e.target.files && e.target.files[0];
-    if (!f) return;
+  // Drag & Drop handling
+  const onDrop = useCallback((acceptedFiles) => {
+    if (!acceptedFiles || acceptedFiles.length === 0) return;
+    const f = acceptedFiles[0];
     if (f.type !== "application/pdf") {
       setError("Only PDF files are accepted.");
       return;
     }
     setError("");
     setFile(f);
-  };
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: { "application/pdf": [".pdf"] }
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,7 +72,6 @@ export default function ResumeUpload() {
       }
 
       const data = await res.json();
-      // data.id and data.file_url are returned by backend
       navigate(`/preview/${data.id}`, { replace: true });
     } catch (err) {
       console.error("Upload error:", err);
@@ -67,9 +83,9 @@ export default function ResumeUpload() {
 
   return (
     <Box maxWidth={800} mx="auto" mt={6} p={3}>
-      <Paper sx={{ p: 4 }}>
-        <Typography variant="h5" mb={2}>
-          Upload Resume
+      <Paper sx={{ p: 4, borderRadius: 3, boxShadow: 4 }}>
+        <Typography variant="h4" mb={3} fontWeight="bold" color="primary">
+          🚀 Upload Your Resume
         </Typography>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -81,7 +97,7 @@ export default function ResumeUpload() {
             onChange={(e) => setResumeName(e.target.value)}
             fullWidth
             required
-            sx={{ mb: 2 }}
+            sx={{ mb: 3 }}
           />
 
           <TextField
@@ -91,26 +107,63 @@ export default function ResumeUpload() {
             fullWidth
             multiline
             rows={4}
-            sx={{ mb: 2 }}
+            sx={{ mb: 3 }}
           />
 
-          <Button variant="outlined" component="label" sx={{ mb: 1 }}>
-            <UploadFileIcon sx={{ mr: 1 }} />
-            Choose PDF file
-            <input
-              type="file"
-              accept="application/pdf"
-              hidden
-              onChange={handleFileChange}
-            />
-          </Button>
-          {file && <Typography variant="body2">Selected: {file.name}</Typography>}
+          {/* Drag & Drop Zone */}
+          <Box
+            {...getRootProps()}
+            sx={{
+              border: "2px dashed",
+              borderColor: isDragActive ? "primary.main" : "grey.400",
+              borderRadius: 3,
+              p: 5,
+              textAlign: "center",
+              backgroundColor: isDragActive ? "primary.light" : "grey.50",
+              transition: "all 0.2s ease-in-out",
+              cursor: "pointer",
+              mb: 3,
+              "&:hover": {
+                backgroundColor: "grey.100"
+              }
+            }}
+          >
+            <input {...getInputProps()} />
+            {isDragActive ? (
+              <Typography variant="h6" color="primary">
+                Drop the file here...
+              </Typography>
+            ) : (
+              <>
+                <CloudUploadIcon sx={{ fontSize: 50, color: "primary.main", mb: 1 }} />
+                <Typography variant="body1">
+                  Drag & Drop your PDF here, or click to select
+                </Typography>
+              </>
+            )}
+          </Box>
+
+          {file && (
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              ✅ Selected: {file.name}
+            </Typography>
+          )}
 
           <Box mt={3} display="flex" gap={2}>
-            <Button type="submit" variant="contained" disabled={loading}>
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              startIcon={loading ? <CircularProgress size={20} /> : <UploadFileIcon />}
+              disabled={loading}
+            >
               {loading ? "Uploading..." : "Upload Resume"}
             </Button>
-            <Button variant="outlined" onClick={() => navigate("/")}>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => navigate("/")}
+            >
               Cancel
             </Button>
           </Box>
