@@ -8,7 +8,7 @@ const mockBackend = {
       return { 
         data: { 
           access_token: "mock-token",
-          user: { email, id: 1 }
+          user: { email, password,id: 1 }
         } 
       };
     },
@@ -18,7 +18,7 @@ const mockBackend = {
     },
     getMe: async () => {
       await new Promise(resolve => setTimeout(resolve, MOCK_DELAY));
-      return { data: { id: 1, email: "test@example.com", username: "testuser" } };
+      return { data: { id: 1, email: "test@example.com", password:"testcase", username: "testuser" } };
     }
   },
 

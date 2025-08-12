@@ -6,7 +6,8 @@
       "id": 1,
       "username": "testuser",
       "email": "test@example.com",
-      "password": "$2a$10$examplehashedpassword"
+      "password": "testcase",
+      "hashed Password": "$2a$10$examplehashedpassword"
     }
   ],
   "resumes": [
