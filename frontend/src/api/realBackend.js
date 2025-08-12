@@ -5,7 +5,7 @@ const API_BASE = process.env.REACT_APP_API_URL;
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 // Request interceptor for auth token
