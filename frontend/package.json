@@ -19,13 +19,11 @@
     "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "start:mocked": "cross-env REACT_APP_USE_MOCK=true react-scripts start",
-    "mock:server": "json-server --watch src/mocks/db.json --port 3001",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
+  "start": "react-scripts start",
+  "build": "react-scripts build",
+  "test": "react-scripts test",
+  "eject": "react-scripts eject"
+   },
   "eslintConfig": {
     "extends": [
       "react-app",
