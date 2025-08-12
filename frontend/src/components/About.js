@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Grid, Typography, Box, Button, Stack } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -97,4 +96,3 @@ const About = () => {
 };
 
 export default About;
-

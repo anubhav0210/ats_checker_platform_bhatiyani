@@ -1,4 +1,3 @@
-# app/models.py
 from pydantic import BaseModel, Field
 from typing import Optional
 from .utils import PyObjectId
@@ -41,5 +40,3 @@ class ResumeInDB(BaseModel):
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-
-

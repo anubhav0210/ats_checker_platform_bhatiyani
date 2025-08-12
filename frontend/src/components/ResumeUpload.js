@@ -12,7 +12,7 @@ import {
 import { CloudUpload as CloudUploadIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import { resumeAPI } from "../api";
+import api from "../api";
 
 const ResumeUpload = () => {
   const navigate = useNavigate();
@@ -38,21 +38,25 @@ const ResumeUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    
-    if (!resumeName.trim()) return setError("Please enter a resume name");
-    if (!file) return setError("Please select a PDF file");
+    if (!resumeName.trim()) return setError("Please enter resume name");
+    if (!file) return setError("Please choose a PDF file");
 
-    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("resume_name", resumeName);
+    formData.append("job_description", jobDescription);
+
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("resume_name", resumeName);
-      formData.append("job_description", jobDescription);
-
-      const { data } = await resumeAPI.uploadResume(formData);
-      navigate(`/preview/${data.id}`);
+      setLoading(true);
+      const res = await api.post("/api/resumes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      navigate(`/preview/${res.data.id}`, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Upload failed");
+      console.error("Upload error:", err);
+      setError(err.response?.data?.detail || "Upload failed");
     } finally {
       setLoading(false);
     }

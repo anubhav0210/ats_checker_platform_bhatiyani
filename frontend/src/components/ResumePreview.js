@@ -1,11 +1,11 @@
-// src/components/ResumePreview.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, CircularProgress, Button, Paper } from "@mui/material";
 import { Doughnut } from "react-chartjs-2";
 import "chart.js/auto";
+import api from "../api";
 
-import { resumeAPI } from "../api";
+const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 export default function ResumePreview() {
   const { id } = useParams();
@@ -14,22 +14,23 @@ export default function ResumePreview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
- useEffect(() => {
-  const fetchResume = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const { data } = await resumeAPI.getResume(id);
-      setResume(data);
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Failed to load resume");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchResume();
-}, [id]);
+  useEffect(() => {
+    const fetchResume = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await api.get(`/api/resumes/${id}`);
+        setResume(res.data);
+      } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.detail || "Failed to load resume");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResume();
+  }, [id]);
+
   if (loading)
     return (
       <Box sx={{ mt: 6, textAlign: "center" }}>
@@ -57,108 +58,88 @@ export default function ResumePreview() {
     ],
   };
 
-return (
-  <Box
-    sx={{
-      p: { xs: 2, md: 5 },
-      display: "flex",
-      flexDirection: { xs: "column", md: "row" },
-      gap: { xs: 2, md: 3 },
-    }}
-  >
-    {/* Left Side: Info + Chart */}
-    <Paper 
-      sx={{ 
-        p: { xs: 1.5, md: 2 }, 
-        flex: 1,
-        mb: { xs: 2, md: 0 }
-      }}
-    >
-      <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', md: '1.25rem' } }}>
-        {resume.resume_name || resume.original_name}
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', md: '1rem' } }}>
-        Uploaded: {resume.uploaded_at}
-      </Typography>
-
-      <Box
-        sx={{
-          width: { xs: 150, md: 200 },
-          mx: "auto",
-          position: "relative",
-          mt: { xs: 2, md: 4 },
-          mb: { xs: 2, md: 3 },
-        }}
-      >
-        <Doughnut data={chartData} />
-        <Typography
-          variant="h5"
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            fontWeight: "bold",
-            fontSize: { xs: '1rem', md: '1.25rem' }
-          }}
-        >
-          {atsScore}%
-        </Typography>
-      </Box>
-
-      <Typography 
-        variant="body2"
-        sx={{ 
-          fontSize: { xs: '0.8rem', md: '0.875rem' },
-          wordBreak: 'break-word'
-        }}
-      >
-        Matched keywords:{" "}
-        {resume.matched_keywords?.length
-          ? resume.matched_keywords.join(", ")
-          : "None"}
-      </Typography>
-
-      <Box mt={{ xs: 3, md: 6 }}>
-        <Button
-          variant="contained"
-          onClick={() => navigate("/dashboard")}
-          fullWidth={{ xs: true, md: false }}
-          size={window.innerWidth < 600 ? "small" : "medium"}
-        >
-          Go to Dashboard
-        </Button>
-      </Box>
-    </Paper>
-
-    {/* Right Side: Resume PDF */}
-    <Paper
+  return (
+    <Box
       sx={{
-        flex: 1,
-        height: { 
-          xs: "50vh", // Smaller height on mobile
-          sm: "60vh", 
-          md: "calc(100vh - 100px)" 
-        },
-        overflow: "hidden",
+        p: 5,
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: 3,
       }}
     >
-      {resume.file_url ? (
-        <iframe
-          src={`${resume.file_url}#view=FitH`}
-          title="Resume"
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-          }}
-        />
-      ) : (
-        <Typography sx={{ p: 2 }}>No file available</Typography>
-      )}
-    </Paper>
-  </Box>
-);
-}
+      {/* Left Side: Info + Chart */}
+      <Paper sx={{ p: 2, flex: 1 }}>
+        <Typography variant="h6">
+          {resume.resume_name || resume.original_name}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Uploaded: {resume.uploaded_at}
+        </Typography>
 
+        <Box
+          sx={{
+            width: 200,
+            mx: "auto",
+            position: "relative",
+            mt: 4,
+            mb: 3,
+          }}
+        >
+          <Doughnut data={chartData} />
+          <Typography
+            variant="h6"
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontWeight: "bold",
+            }}
+          >
+            {atsScore}%
+          </Typography>
+        </Box>
+
+        <Typography variant="h7">
+          Matched keywords:{" "}
+          {resume.matched_keywords?.length
+            ? resume.matched_keywords.join(", ")
+            : "None"}
+        </Typography>
+
+        <Box mt={6}>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/dashboard")}
+          >
+            Go to Dashboard
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* Right Side: Resume PDF */}
+              <Paper
+  sx={{
+    flex: 1,
+    height: { xs: "70vh", md: "calc(100vh - 100px)" },
+    overflow: "hidden",
+  }}
+>
+  {resume.file_url ? (
+    <iframe
+      src={`${resume.file_url}#view=FitH`}
+      title="Resume"
+      style={{
+        width: "100%",
+        height: "100%",
+        border: "none",
+      }}
+    />
+  ) : (
+    <Typography sx={{ p: 2 }}>No file available</Typography>
+  )}
+</Paper>
+    </Box>
+  );
+}
 

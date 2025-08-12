@@ -19,10 +19,9 @@ import {
 } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { authAPI } from "../api";
+import api from "../api";
 
-
-
+const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -35,25 +34,26 @@ const Register = () => {
   const handleChange = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+ 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  if (!form.username || !form.email || !form.password) {
-    setError("Please fill in all fields");
-    return;
-  }
+    if (!form.username || !form.email || !form.password) {
+      setError("Please fill in all fields");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    await authAPI.register(form.username, form.email, form.password);
-    alert("🎉 Registration successful! Please login.");
-    navigate("/login");
-  } catch (err) {
-    setError(err.response?.data?.detail || "Registration failed");
-  } finally {
-    setLoading(false);
-  }
+    setLoading(true);
+    try {
+      await api.post("/auth/register", form);
+      alert("🎉 Registration successful! Please login.");
+      navigate("/login");
+    } catch (err) {
+      setError(err.response?.data?.detail || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

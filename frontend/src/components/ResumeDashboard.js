@@ -1,5 +1,4 @@
-// src/components/ResumeDashboard.js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -10,36 +9,36 @@ import {
   Stack,
   Chip,
   IconButton,
-  Tooltip,
-  Alert
+  Tooltip
 } from "@mui/material";
-import {
-  Visibility as VisibilityIcon,
-  Refresh as RefreshIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  CloudUpload as CloudUploadIcon,
-} from "@mui/icons-material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { useNavigate } from "react-router-dom";
-import { resumeAPI } from "../api";
+import api from "../api"
 
-const ResumeDashboard = () => {
+const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
+export default function ResumeDashboard() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const fetchResumes = async () => {
     setLoading(true);
     try {
-      const { data } = await resumeAPI.getResumes();
-      setResumes(data);
+      const res = await api.get("/api/resumes");
+      setResumes(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load resumes");
+      console.error(err);
+      alert(err.response?.data?.detail || "Failed to load resumes");
     } finally {
       setLoading(false);
     }
   };
+
+  
 
   useEffect(() => {
     fetchResumes();
@@ -48,14 +47,12 @@ const ResumeDashboard = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this resume?")) return;
     try {
-      await resumeAPI.deleteResume(id);
+      await api.delete(`/api/resumes/${id}`);
       fetchResumes();
     } catch (err) {
-      setError(err.response?.data?.message || "Delete failed");
+      console.error(err);
+      alert(err.response?.data?.detail || "Delete failed");
     }
-  };
-    const handleUpdate = (id) => {
-    navigate(`/resume/new?edit=${id}`);
   };
 
   const getScoreColor = (score) => {
@@ -64,13 +61,20 @@ const ResumeDashboard = () => {
     return "error";
   };
 
-  if (loading) return <CircularProgress sx={{ display: "block", mx: "auto", mt: 4 }} />;
-  if (error) return <Alert severity="error">{error}</Alert>;
+  if (loading)
+    return (
+      <Box display="flex" justifyContent="center" mt={6}>
+        <CircularProgress />
+      </Box>
+    );
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box display="flex" justifyContent="space-between" mb={3}>
-        <Typography variant="h4">Your Resumes</Typography>
+    <Box sx={{ mt: 4 }}>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" fontWeight={600}>
+          📄 Your Resumes
+        </Typography>
         <Button
           variant="contained"
           startIcon={<CloudUploadIcon />}
@@ -80,60 +84,77 @@ const ResumeDashboard = () => {
         </Button>
       </Box>
 
+      {/* Empty State */}
       {resumes.length === 0 ? (
-        <Paper sx={{ p: 4, textAlign: "center" }}>
-          <Typography>No resumes found</Typography>
+        <Paper sx={{ p: 4, textAlign: "center", borderRadius: 3, boxShadow: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            No resumes yet 📂
+          </Typography>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            Upload your first resume to get started.
+          </Typography>
           <Button
             variant="contained"
             startIcon={<CloudUploadIcon />}
             onClick={() => navigate("/resume/new")}
-            sx={{ mt: 2 }}
           >
-            Upload Your First Resume
+            Upload Resume
           </Button>
         </Paper>
       ) : (
         <Grid container spacing={3}>
-          {resumes.map((resume) => (
-            <Grid item xs={12} sm={6} md={4} key={resume.id}>
-              <Paper sx={{ p: 2, height: "100%" }}>
-                <Typography variant="h6">{resume.resume_name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Uploaded: {new Date(resume.uploaded_at).toLocaleDateString()}
+          {resumes.map((r) => (
+            <Grid item xs={12} md={6} lg={4} key={r.id}>
+              <Paper
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  {r.resume_name}
                 </Typography>
-                
+                <Typography variant="body2" color="text.secondary">
+                  Uploaded: {new Date(r.uploaded_at).toLocaleDateString()}
+                </Typography>
+
+                {/* Score */}
                 <Chip
-                  label={`Score: ${resume.score || 0}%`}
-                  color={getScoreColor(resume.score)}
-                  sx={{ my: 1 }}
+                  label={`Score: ${r.score ?? "N/A"}%`}
+                  color={r.score ? getScoreColor(r.score) : "default"}
+                  sx={{ mt: 1, fontWeight: 500 }}
                 />
-                
-                <Stack direction="row" spacing={1}>
-                  <Tooltip title="View">
-                    <IconButton onClick={() => navigate(`/preview/${resume.id}`)}>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Tooltip>
-      
-                  <Tooltip title="Edit Resume">
+
+                {/* Actions */}
+                <Stack direction="row" spacing={1} mt={2}>
+                  <Tooltip title="View Resume">
                     <IconButton
-                      color="info"
-                      onClick={() => handleUpdate(resume.id)}
+                      color="primary"
+                      onClick={() => navigate(`/preview/${r.id}`)}
                     >
-                      <EditIcon />
+                      <VisibilityIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Re-check Resume">
                     <IconButton
                       color="warning"
-                      onClick={() => navigate(`/resume/new?edit=${resume.id}`)}
+                      onClick={() => navigate(`/resume/new?edit=${r.id}`)}
                     >
                       <RefreshIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton onClick={() => handleDelete(resume.id)}>
-                      <DeleteIcon color="error" />
+                  <Tooltip title="Delete Resume">
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(r.id)}
+                    >
+                      <DeleteIcon />
                     </IconButton>
                   </Tooltip>
                 </Stack>
@@ -144,6 +165,4 @@ const ResumeDashboard = () => {
       )}
     </Box>
   );
-};
-
-export default ResumeDashboard;
+}

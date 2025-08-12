@@ -13,7 +13,7 @@ import {
 import { Visibility, VisibilityOff, Email, Lock } from "@mui/icons-material";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { authAPI } from "../api";
+import api from "../api";
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -21,38 +21,28 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const toggleShowPassword = () => setShowPassword((show) => !show);
-
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setLoading(true);
-    
     try {
-      const response = await authAPI.login(email, password);
+      const response = await api.post("/auth/login", { email, password });
       const success = await login(email, password);
-      
       if (success) {
         navigate("/dashboard");
-      } else {
-        setError("Invalid credentials");
       }
     } catch (err) {
-      console.error('Login error:', err); // For debugging
-      const errorMessage = 
-        err.response?.data?.detail || 
-        err.response?.data?.message || 
-        err.message || 
-        "Login failed. Please try again.";
-      setError(errorMessage);
+      setError(err.response?.data?.detail || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <Container maxWidth="xs">
@@ -66,20 +56,18 @@ const Login = () => {
           textAlign: "center",
         }}
       >
-        <Typography
-          variant="h5"
+        <Typography  variant="h5"
           fontWeight="bold"
           mb={1}
           sx={{
             background: "linear-gradient(90deg, #de9714ff, #cf9b19ff)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-          }}
-        >
+          }}>
           Sign in to your account
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <Link component={RouterLink} to="/register" underline="hover">
             Register here
           </Link>
@@ -87,7 +75,7 @@ const Login = () => {
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {String(error)} {/* This will properly display the error */}
+            {error}
           </Alert>
         )}
 
@@ -109,7 +97,6 @@ const Login = () => {
               ),
             }}
             disabled={loading}
-            error={!!error && email.length > 0} // Shows red line if error exists and email field isn't empty
           />
 
           <TextField
@@ -142,7 +129,6 @@ const Login = () => {
                 </InputAdornment>
               ),
             }}
-            error={!!error && password.length > 0} // Shows red line if error exists and password field isn't empty
           />
 
           <Box textAlign="right" mt={1} mb={3}>

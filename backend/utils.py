@@ -37,4 +37,3 @@ def simple_keyword_score(parsed_text: str, job_description: str):
     matched = len(matched_keywords)
     score = int((matched / total) * 100) if total > 0 else 0
     return {"score": score, "matched": matched, "total": total, "matched_keywords": matched_keywords}
-

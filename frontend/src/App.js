@@ -1,26 +1,26 @@
-// src/App.js
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import About from "./components/About";
 import Login from "./components/Login";
 import Footer from "./components/Footer";
-import ResumeUpload from "./components/ResumeUpload";
+import ResumeForm from "./components/ResumeUpload";
 import ResumePreview from "./components/ResumePreview";
 import PrivateRoute from "./components/PrivateRoute";
 import Register from "./components/Register";
 import ResumeDashboard from "./components/ResumeDashboard";
-import { AuthProvider } from "./context/AuthContext";
 
-function App() {
+const App = () => {
   return (
-    <AuthProvider>
+    <>
       <Navbar />
       <Routes>
+        {/* Public */}
         <Route path="/" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
+        {/* Protected */}
         <Route
           path="/dashboard"
           element={
@@ -33,7 +33,15 @@ function App() {
           path="/resume/new"
           element={
             <PrivateRoute>
-              <ResumeUpload />
+              <ResumeForm />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/resume/edit/:id"
+          element={
+            <PrivateRoute>
+              <ResumeForm />
             </PrivateRoute>
           }
         />
@@ -46,11 +54,12 @@ function App() {
           }
         />
 
+        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />
-    </AuthProvider>
+    </>
   );
-}
+};
 
-export default App;
+export default App;  

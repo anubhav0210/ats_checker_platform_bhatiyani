@@ -1,4 +1,3 @@
-# auth.py
 from fastapi import APIRouter, HTTPException, status, Depends, Header
 from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
@@ -113,6 +112,4 @@ async def login(payload: LoginIn):
 
 @router.get("/me", response_model=UserOut)
 async def me(current_user=Depends(get_current_user)):
-    return {"id": current_user["id"], "username": current_user["username"], "email": current_user["email"]}
-
-
+    return {"id": current_user["id"], "username": current_user["username"], "email": current_user["email"]}  
