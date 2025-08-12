@@ -1,8 +1,8 @@
 # Resume ATS Checker Platform
 
-![Project Banner](https://i.imgur.com/J5q8S5l.png) *Replace with your actual banner image*
 
-A full-stack platform for analyzing resume compatibility with Applicant Tracking Systems (ATS), featuring real/mock backend switching.
+About
+A scalable, full-stack Applicant Tracking System (ATS) Resume Checker platform designed to help users upload, parse, and score resumes intelligently. Built with React for the frontend and FastAPI for the backend, this platform supports PDF resume parsing, keyword-based scoring logic, and secure user authentication.
 
 ## Table of Contents
 - [Features](#features)
@@ -12,8 +12,7 @@ A full-stack platform for analyzing resume compatibility with Applicant Tracking
 - [Running the Application](#running-the-application)
 - [API Documentation](#api-documentation)
 - [Mock Data System](#mock-data-system)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ## ✨ Features
 
@@ -135,12 +134,27 @@ http://localhost:3001/users
 ### Sample db.json
 ```json
 {
+  "users": [
+    {
+      "id": 1,
+      "username": "testuser",
+      "email": "test@example.com",
+      "password": "testcase",
+      "hashed Password": "$2a$10$examplehashedpassword"
+    }
+  ],
   "resumes": [
     {
       "id": "1",
       "user_id": "1",
-      "score": 78,
-      "keywords": ["React", "Node.js"]
+      "resume_name": "Sample Resume",
+      "filename": "sample.pdf",
+      "original_name": "myresume.pdf",
+      "uploaded_at": "2023-05-15T10:00:00Z",
+      "score": 85,
+      "matched_keywords": ["react", "node", "mongodb"],
+      "job_description": "Looking for a full stack developer",
+      "file_url": "/uploads/sample.pdf"
     }
   ]
 }
