@@ -1,7 +1,7 @@
 # utils.py
 import os
 import uuid
-import fitz  # pymupdf
+import PDFMiner  # pymupdf
 
 def save_upload_file(upload_file, dest_folder):
     os.makedirs(dest_folder, exist_ok=True)
@@ -17,7 +17,7 @@ def save_upload_file(upload_file, dest_folder):
 def extract_text_from_pdf(path):
     text_parts = []
     try:
-        doc = fitz.open(path)
+        doc = PDFMiner.open(path)
         for page in doc:
             text_parts.append(page.get_text())
         doc.close()
