@@ -26,9 +26,11 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-@app.get("/")
-async def root():
-    return {"msg": "Resume ATS Backend running"}
+app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
+
+# @app.get("/")
+# async def root():
+#     return {"msg": "Resume ATS Backend running"}
 
 if __name__ == "__main__":
     import uvicorn
