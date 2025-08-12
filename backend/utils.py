@@ -1,7 +1,9 @@
 # utils.py
 import os
 import uuid
-import PDFMiner  # pymupdf
+
+from pdfminer.high_level import extract_text
+  # pymupdf
 
 def save_upload_file(upload_file, dest_folder):
     os.makedirs(dest_folder, exist_ok=True)
@@ -15,15 +17,10 @@ def save_upload_file(upload_file, dest_folder):
     return path, unique_name
 
 def extract_text_from_pdf(path):
-    text_parts = []
     try:
-        doc = PDFMiner.open(path)
-        for page in doc:
-            text_parts.append(page.get_text())
-        doc.close()
+        return extract_text(path)
     except Exception:
         return ""
-    return "\n".join(text_parts)
 
 def simple_keyword_score(parsed_text: str, job_description: str):
     if not parsed_text or not job_description:
