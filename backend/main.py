@@ -1,40 +1,30 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+from pymongo import MongoClient
 import os
-from auth import router as auth_router
-from resume import router as resume_router
-from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()  # Load .env variables
 
-app = FastAPI(title="Resume ATS Backend")
+app = FastAPI()
 
-FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
+# CORS Configuration (Allow Vercel & localhost)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        FRONTEND_ORIGIN, 
-        "http://localhost:3000", 
-        "http://127.0.0.1:3000",
-        "https://ats-checker-platform-bhatiyani.vercel.app"  # your deployed frontend
+        "http://localhost:3000",
+        "https://your-frontend.vercel.app"  # Replace with Vercel URL
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
-app.include_router(resume_router)
+# MongoDB Connection
+client = MongoClient(os.getenv("MONGODB_URI"))
+db = client.get_database("ats_checker")
 
-UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
-
+# Example FastAPI route
 @app.get("/")
-async def root():
-    return {"msg": "Resume ATS Backend running"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+def read_root():
+    return {"message": "ATS Checker Backend is running!"}

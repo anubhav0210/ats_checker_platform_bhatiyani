@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ats-checker-backend
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://anubhav0210:radhe222@cluster0.sy85tuu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - key: SECRET_KEY
+        value: your_jwt_secret_key
