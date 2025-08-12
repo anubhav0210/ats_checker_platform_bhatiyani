@@ -13,7 +13,12 @@ app = FastAPI(title="Resume ATS Backend")
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_ORIGIN, "http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        FRONTEND_ORIGIN, 
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://ats-checker-platform-bhatiyani.vercel.app"  # your deployed frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
