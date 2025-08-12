@@ -8,27 +8,21 @@ import api from "../api";
 const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 export default function ResumePreview() {
-  const { id } = useParams();
+   const { id } = useParams();
+  const [pdfUrl, setPdfUrl] = useState('');
   const navigate = useNavigate();
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchResume = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const res = await api.get(`/api/resumes/${id}`);
-        setResume(res.data);
-      } catch (err) {
-        console.error(err);
-        setError(err.response?.data?.detail || "Failed to load resume");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchResume();
+    // Fetch metadata first
+    fetch(`/api/resumes/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        // Construct the PDF URL
+        setPdfUrl(data.file_url);
+      });
   }, [id]);
 
   if (loading)
@@ -125,19 +119,17 @@ export default function ResumePreview() {
     overflow: "hidden",
   }}
 >
-  {resume.file_url ? (
-    <iframe
-      src={`${resume.file_url}#view=FitH`}
-      title="Resume"
-      style={{
-        width: "100%",
-        height: "100%",
-        border: "none",
-      }}
-    />
-  ) : (
-    <Typography sx={{ p: 2 }}>No file available</Typography>
-  )}
+   <div style={{ height: '100vh' }}>
+      {pdfUrl ? (
+        <iframe 
+          src={pdfUrl}
+          style={{ width: '100%', height: '100%', border: 'none' }}
+          title="Resume Preview"
+        />
+      ) : (
+        <Typography sx={{ p: 2 }}>Loading PDF...</Typography>
+      )}
+    </div>
 </Paper>
     </Box>
   );
