@@ -21,7 +21,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import api from "../api";
 
-const BACKEND = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const BACKEND = window.location.href;
 
 const Register = () => {
   const navigate = useNavigate();

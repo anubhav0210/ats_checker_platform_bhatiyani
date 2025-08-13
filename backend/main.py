@@ -26,7 +26,7 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "./uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
-app.mount("/", StaticFiles(directory="static", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 # @app.get("/")
 # async def root():
