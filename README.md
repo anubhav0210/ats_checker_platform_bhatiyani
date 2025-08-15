@@ -31,16 +31,6 @@ A scalable, full-stack Applicant Tracking System (ATS) Resume Checker platform d
   - Mock JSON server
   - Hot-swappable backends
 
-## 🏗️ Dual Backend Architecture
-```
-src/
-  api/
-    index.js          # API gateway
-    realBackend.js    # Production API
-    mockBackend.js    # Mock API
-  mocks/
-    db.json           # Mock data
-```
 
 **Switching Mechanism**:
 ```javascript
